@@ -2,7 +2,7 @@
 
 Interface interativa de um totem de autoatendimento para o Restaurante Universitário do IFSP Campus Pirituba, desenvolvida como projeto prático da disciplina de Interação Humano-Computador.
 
-**[Acessar protótipo](https://sorayagomess.github.io/totem-ru-ifsp/)**
+**[Acessar protótipo](https://sorayagomes-ads.github.io/totem-ru-ifsp/)**
 
 ---
 
