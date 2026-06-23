@@ -22,5 +22,5 @@ Abra o arquivo `.html` diretamente no navegador, ou acesse pelo link do GitHub P
 
 ## Equipe
 
-Soraya Gomes da Silva, Amanda Maciel, Gustavo Maximo, Mariana Vitoria  
+Amanda Maciel, Gustavo Maximo, Mariana Vitoria e Soraya Gomes.
 Prof. Antonio Junior — IFSP Pirituba, 2026
