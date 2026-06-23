@@ -1,0 +1,1473 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Totem RU – IFSP Pirituba</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --verde-ifsp: #5a9e23;
+    --verde-escuro: #3d6e17;
+    --verde-claro: #7dc235;
+    --verde-bg: #f0f7e8;
+    --verde-light: #e4f2d0;
+    --vermelho-ifsp: #cc2222;
+    --cinza-texto: #2a2a2a;
+    --cinza-medio: #6b6b6b;
+    --cinza-borda: #d8e8c8;
+    --branco: #ffffff;
+    --sombra: 0 4px 24px rgba(90,158,35,0.13);
+    --sombra-forte: 0 8px 40px rgba(90,158,35,0.22);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--verde-bg);
+    min-height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ===== TELAS ===== */
+  .tela {
+    position: fixed;
+    inset: 0;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+  }
+  .tela.ativa {
+    display: flex;
+    opacity: 1;
+  }
+
+  /* ===== TELA INICIAL ===== */
+  #tela-inicial {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(160deg, #1a3a08 0%, #2d5c10 40%, #3d6e17 70%, #5a9e23 100%);
+    gap: 0;
+  }
+
+  .inicial-overlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 60% 40%, rgba(125,194,53,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .inicial-dots {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px);
+    background-size: 32px 32px;
+    pointer-events: none;
+  }
+
+  .logo-wrap {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 56px;
+    animation: fadeUp 0.7s ease both;
+  }
+
+  .logo-ifsp-svg {
+    width: 140px;
+    height: 140px;
+    background: white;
+    border-radius: 28px;
+    padding: 18px;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logo-ifsp-svg svg { width: 100%; height: 100%; } .logo-ifsp-svg img { width: 100%; height: 100%; object-fit: contain; }
+
+  .nome-instituto {
+    text-align: center;
+    color: white;
+  }
+  .nome-instituto h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .nome-instituto p {
+    font-size: 1rem;
+    font-weight: 300;
+    color: rgba(255,255,255,0.75);
+    margin-top: 4px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .ru-badge {
+    position: relative;
+    z-index: 1;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 100px;
+    padding: 10px 28px;
+    color: white;
+    font-size: 0.95rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 64px;
+    animation: fadeUp 0.7s 0.1s ease both;
+  }
+
+  .btn-iniciar {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    animation: fadeUp 0.7s 0.2s ease both;
+  }
+
+  .btn-iniciar-circle {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: var(--verde-claro);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 0 rgba(125,194,53,0.5);
+    animation: pulse 2s infinite;
+    transition: transform 0.2s, background 0.2s;
+  }
+  .btn-iniciar-circle:hover { transform: scale(1.08); background: #8fd940; }
+  .btn-iniciar-circle svg { width: 44px; height: 44px; color: white; fill: white; }
+
+  .btn-iniciar span {
+    color: rgba(255,255,255,0.85);
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(125,194,53,0.5); }
+    70% { box-shadow: 0 0 0 22px rgba(125,194,53,0); }
+    100% { box-shadow: 0 0 0 0 rgba(125,194,53,0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== TELA PRINCIPAL (MENU) ===== */
+  #tela-menu {
+    flex-direction: column;
+    background: var(--verde-bg);
+  }
+
+  /* Header */
+  .header {
+    background: var(--verde-escuro);
+    padding: 0 32px;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.18);
+    flex-shrink: 0;
+    z-index: 10;
+  }
+
+  .header-logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .header-logo-img {
+    width: 44px;
+    height: 44px;
+    background: white;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    flex-shrink: 0;
+  }
+  .header-logo-img svg { width: 100%; height: 100%; }
+
+  .header-logo-text h2 {
+    color: white;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+  .header-logo-text p {
+    color: rgba(255,255,255,0.65);
+    font-size: 0.72rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+  }
+
+  .btn-carrinho {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--verde-claro);
+    border: none;
+    border-radius: 50px;
+    padding: 10px 22px;
+    color: white;
+    font-family: 'Sora', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    position: relative;
+  }
+  .btn-carrinho:hover { background: #8fd940; transform: scale(1.03); }
+  .btn-carrinho svg { width: 20px; height: 20px; }
+
+  .carrinho-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: var(--vermelho-ifsp);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    display: none;
+  }
+
+  /* Layout principal */
+  .menu-body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 230px;
+    background: white;
+    border-right: 2px solid var(--cinza-borda);
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-shrink: 0;
+    overflow-y: auto;
+  }
+
+  .sidebar-title {
+    color: var(--cinza-medio);
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0 8px;
+    margin-bottom: 8px;
+  }
+
+  .cat-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+    font-family: 'Sora', sans-serif;
+  }
+  .cat-btn:hover { background: var(--verde-light); }
+  .cat-btn.ativa {
+    background: var(--verde-escuro);
+    border-color: var(--verde-escuro);
+  }
+  .cat-btn.ativa .cat-label { color: white; }
+  .cat-btn.ativa .cat-icon-wrap { background: rgba(255,255,255,0.2); }
+
+  .cat-icon-wrap {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--verde-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+  }
+
+  .cat-label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--cinza-texto);
+  }
+
+  /* Conteúdo */
+  .conteudo {
+    flex: 1;
+    overflow-y: auto;
+    padding: 28px 32px;
+  }
+
+  .conteudo-header {
+    margin-bottom: 24px;
+  }
+  .conteudo-header h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--cinza-texto);
+  }
+  .conteudo-header p {
+    font-size: 0.85rem;
+    color: var(--cinza-medio);
+    margin-top: 4px;
+  }
+
+  /* Grid de pratos */
+  .grid-pratos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+
+  .card-prato {
+    background: white;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: var(--sombra);
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 2px solid transparent;
+  }
+  .card-prato:hover { transform: translateY(-4px); box-shadow: var(--sombra-forte); border-color: var(--verde-claro); }
+
+  .card-img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    background: var(--verde-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+  }
+
+  .card-body {
+    padding: 16px 18px;
+  }
+
+  .card-tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+  .tag-normal { background: #e8f4d0; color: var(--verde-escuro); }
+  .tag-vegano { background: #d0f0e0; color: #1a6e40; }
+  .tag-bebida { background: #d0eef8; color: #1a5a7a; }
+
+  .card-nome {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--cinza-texto);
+    margin-bottom: 6px;
+  }
+
+  .card-desc {
+    font-size: 0.8rem;
+    color: var(--cinza-medio);
+    line-height: 1.5;
+    margin-bottom: 14px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .card-alerg {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 12px;
+  }
+  .alerg-tag {
+    background: #fff3e0;
+    color: #b35a00;
+    border: 1px solid #f5c080;
+    border-radius: 6px;
+    font-size: 0.68rem;
+    padding: 2px 7px;
+    font-weight: 500;
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-preco {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--verde-escuro);
+  }
+
+  .btn-add {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--verde-escuro);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, transform 0.15s;
+    color: white;
+  }
+  .btn-add:hover { background: var(--verde-claro); transform: scale(1.12); }
+  .btn-add svg { width: 20px; height: 20px; }
+
+  /* Calendário */
+  .calendario-wrap { display: flex; flex-direction: column; gap: 16px; }
+
+  .cal-dia {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--sombra);
+    border: 2px solid var(--cinza-borda);
+  }
+
+  .cal-dia-header {
+    background: var(--verde-escuro);
+    color: white;
+    padding: 12px 20px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .cal-dia-header span { font-size: 1.1rem; }
+
+  .cal-dia-pratos {
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .cal-prato {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: var(--verde-bg);
+  }
+
+  .cal-prato-emoji { font-size: 1.6rem; flex-shrink: 0; }
+
+  .cal-prato-info h5 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--cinza-texto);
+    margin-bottom: 2px;
+  }
+  .cal-prato-info p {
+    font-size: 0.78rem;
+    color: var(--cinza-medio);
+    font-family: 'Inter', sans-serif;
+  }
+
+  .cal-aviso {
+    text-align: center;
+    padding: 16px 24px;
+    background: var(--verde-light);
+    border-radius: 12px;
+    color: var(--verde-escuro);
+    font-size: 0.82rem;
+    font-family: 'Inter', sans-serif;
+    line-height: 1.5;
+    margin-top: 4px;
+  }
+  .cal-aviso strong { font-weight: 600; }
+
+  /* ===== PAINEL CARRINHO ===== */
+  .overlay-bg {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 40;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .overlay-bg.visivel { display: block; opacity: 1; }
+
+  .painel-carrinho {
+    position: fixed;
+    top: 0; right: -480px;
+    width: 440px;
+    height: 100%;
+    background: white;
+    z-index: 50;
+    box-shadow: -8px 0 40px rgba(0,0,0,0.2);
+    transition: right 0.35s cubic-bezier(.4,0,.2,1);
+    display: flex;
+    flex-direction: column;
+  }
+  .painel-carrinho.aberto { right: 0; }
+
+  .painel-header {
+    padding: 24px 24px 20px;
+    border-bottom: 2px solid var(--cinza-borda);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .painel-header h3 { font-size: 1.2rem; font-weight: 700; color: var(--cinza-texto); display: flex; align-items: center; gap: 10px; }
+  .painel-header h3 svg { color: var(--verde-escuro); }
+
+  .btn-fechar {
+    width: 36px; height: 36px; border-radius: 50%; background: var(--verde-bg);
+    border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+  }
+  .btn-fechar:hover { background: var(--verde-light); }
+  .btn-fechar svg { width: 18px; height: 18px; color: var(--cinza-texto); }
+
+  .painel-body { flex: 1; overflow-y: auto; padding: 20px 24px; }
+
+  .carrinho-vazio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 16px;
+    color: var(--cinza-medio);
+    text-align: center;
+  }
+  .carrinho-vazio svg { width: 64px; height: 64px; opacity: 0.3; }
+  .carrinho-vazio h4 { font-size: 1.1rem; font-weight: 600; }
+  .carrinho-vazio p { font-size: 0.85rem; font-family: 'Inter', sans-serif; }
+
+  .item-carrinho {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--cinza-borda);
+  }
+
+  .item-emoji { font-size: 2rem; width: 48px; height: 48px; background: var(--verde-bg); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+  .item-info { flex: 1; }
+  .item-info h5 { font-size: 0.92rem; font-weight: 600; color: var(--cinza-texto); }
+  .item-info p { font-size: 0.78rem; color: var(--cinza-medio); font-family: 'Inter', sans-serif; }
+
+  .item-ctrl {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .ctrl-btn {
+    width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--cinza-borda);
+    background: white; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; font-weight: 700; color: var(--verde-escuro); transition: all 0.15s;
+  }
+  .ctrl-btn:hover { background: var(--verde-light); border-color: var(--verde-claro); }
+  .ctrl-qtd { font-size: 0.95rem; font-weight: 700; min-width: 20px; text-align: center; }
+
+  .btn-remover {
+    background: none; border: none; cursor: pointer; color: #cc3333;
+    padding: 4px; border-radius: 6px; transition: background 0.15s;
+  }
+  .btn-remover:hover { background: #ffe0e0; }
+  .btn-remover svg { width: 16px; height: 16px; }
+
+  .painel-footer {
+    padding: 20px 24px;
+    border-top: 2px solid var(--cinza-borda);
+    background: white;
+    flex-shrink: 0;
+  }
+
+  .resumo-linha {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.88rem;
+    color: var(--cinza-medio);
+    margin-bottom: 8px;
+    font-family: 'Inter', sans-serif;
+  }
+  .resumo-linha.total {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--cinza-texto);
+    padding-top: 10px;
+    border-top: 1px solid var(--cinza-borda);
+    margin-top: 8px;
+    font-family: 'Sora', sans-serif;
+  }
+
+  .btn-checkout {
+    width: 100%;
+    padding: 16px;
+    background: var(--verde-escuro);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-family: 'Sora', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 16px;
+    transition: background 0.2s, transform 0.15s;
+    letter-spacing: 0.02em;
+  }
+  .btn-checkout:hover { background: var(--verde-claro); transform: scale(1.01); }
+  .btn-checkout:disabled { background: #b0b0b0; cursor: not-allowed; transform: none; }
+
+  /* ===== TELA PAGAMENTO ===== */
+  #tela-pagamento {
+    flex-direction: column;
+    background: var(--verde-bg);
+  }
+
+  .pag-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    gap: 28px;
+    overflow-y: auto;
+  }
+
+  .pag-card {
+    background: white;
+    border-radius: 22px;
+    padding: 32px;
+    width: 100%;
+    max-width: 560px;
+    box-shadow: var(--sombra-forte);
+  }
+
+  .pag-card h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--cinza-texto);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .formas-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .forma-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 20px 12px;
+    border-radius: 16px;
+    border: 2px solid var(--cinza-borda);
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Sora', sans-serif;
+  }
+  .forma-btn:hover { border-color: var(--verde-claro); background: var(--verde-bg); }
+  .forma-btn.selecionada { border-color: var(--verde-escuro); background: var(--verde-light); }
+  .forma-btn.selecionada .forma-label { color: var(--verde-escuro); font-weight: 700; }
+
+  .forma-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    background: var(--verde-bg);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem;
+  }
+  .forma-btn.selecionada .forma-icon { background: var(--verde-escuro); }
+
+  .forma-label { font-size: 0.88rem; font-weight: 600; color: var(--cinza-texto); }
+
+  /* Instrução pagamento */
+  .pag-instrucao {
+    background: white;
+    border-radius: 20px;
+    padding: 28px;
+    width: 100%;
+    max-width: 560px;
+    box-shadow: var(--sombra);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    text-align: center;
+  }
+  .pag-instrucao.visivel { display: flex; }
+
+  .qrcode-wrap {
+    width: 180px; height: 180px;
+    background: white;
+    border: 3px solid var(--cinza-borda);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+  }
+
+  .qrcode-svg { width: 100%; height: 100%; }
+
+  .instrucao-texto {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--cinza-texto);
+    line-height: 1.5;
+  }
+  .instrucao-sub {
+    font-size: 0.82rem;
+    color: var(--cinza-medio);
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* Resumo pagamento */
+  .resumo-card {
+    background: white;
+    border-radius: 20px;
+    padding: 24px 28px;
+    width: 100%;
+    max-width: 560px;
+    box-shadow: var(--sombra);
+  }
+  .resumo-card h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--cinza-texto);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-pgto-realizado {
+    width: 100%;
+    max-width: 560px;
+    padding: 18px;
+    background: var(--verde-escuro);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    font-family: 'Sora', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+  .btn-pgto-realizado:hover { background: var(--verde-claro); transform: scale(1.01); }
+  .btn-pgto-realizado svg { width: 22px; height: 22px; }
+
+  .btn-voltar-pag {
+    background: none;
+    border: 2px solid var(--cinza-borda);
+    border-radius: 50px;
+    padding: 10px 24px;
+    font-family: 'Sora', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--cinza-medio);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+    align-self: flex-start;
+  }
+  .btn-voltar-pag:hover { background: white; border-color: var(--verde-claro); color: var(--verde-escuro); }
+
+  /* ===== TELA CONFIRMAÇÃO ===== */
+  #tela-confirmacao {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(160deg, #1a3a08 0%, #2d5c10 40%, #5a9e23 100%);
+    gap: 0;
+  }
+
+  .confirmacao-card {
+    background: white;
+    border-radius: 28px;
+    padding: 48px 40px;
+    max-width: 420px;
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    text-align: center;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.3);
+    animation: popIn 0.4s cubic-bezier(.34,1.56,.64,1) both;
+  }
+
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.85); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .check-circle {
+    width: 96px; height: 96px;
+    border-radius: 50%;
+    background: #e8f8ee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+  }
+  .check-circle svg { width: 52px; height: 52px; color: #22a855; }
+
+  .confirmacao-card h2 {
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: var(--cinza-texto);
+  }
+
+  .confirmacao-card .sub-text {
+    font-size: 0.9rem;
+    color: var(--cinza-medio);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+  }
+
+  .numero-pedido-box {
+    background: var(--verde-bg);
+    border-radius: 16px;
+    padding: 18px 40px;
+    margin: 8px 0;
+    border: 2px solid var(--cinza-borda);
+    width: 100%;
+  }
+  .numero-pedido-box p { font-size: 0.82rem; color: var(--cinza-medio); margin-bottom: 4px; font-family: 'Inter', sans-serif; }
+  .numero-pedido-box h3 { font-size: 2.2rem; font-weight: 800; color: var(--verde-escuro); letter-spacing: 0.04em; }
+
+  .btn-novo-pedido {
+    width: 100%;
+    padding: 16px;
+    background: var(--verde-escuro);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-family: 'Sora', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .btn-novo-pedido:hover { background: var(--verde-claro); }
+
+  /* ===== SCROLLBAR ===== */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--cinza-borda); border-radius: 3px; }
+
+</style>
+</head>
+<body>
+
+<!-- ===== LOGO IFSP SVG (reusável) ===== -->
+<template id="tpl-logo"><img src="data:image/png;base64,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" style="width:100%;height:100%;object-fit:contain;" alt="Logo IFSP"/></template>
+
+<!-- ===========================
+     TELA 1 — INICIAL
+========================== -->
+<div class="tela ativa" id="tela-inicial">
+  <div class="inicial-dots"></div>
+  <div class="inicial-overlay"></div>
+
+  <div class="logo-wrap">
+    <div class="logo-ifsp-svg" id="logo-inicial"></div>
+    <div class="nome-instituto">
+      <h1>Instituto Federal<br>São Paulo</h1>
+      <p>Campus Pirituba</p>
+    </div>
+  </div>
+
+  <div class="ru-badge">🍽️ Restaurante Universitário</div>
+
+  <div class="btn-iniciar" onclick="irPara('tela-menu')">
+    <div class="btn-iniciar-circle">
+      <svg viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
+    </div>
+    <span>Toque para começar</span>
+  </div>
+</div>
+
+<!-- ===========================
+     TELA 2 — MENU PRINCIPAL
+========================== -->
+<div class="tela" id="tela-menu">
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-logo">
+      <div class="header-logo-img" id="logo-header"></div>
+      <div class="header-logo-text">
+        <h2>IFSP Pirituba</h2>
+        <p>Restaurante Universitário</p>
+      </div>
+    </div>
+    <button class="btn-carrinho" onclick="abrirCarrinho()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      Ver Pedido
+      <span class="carrinho-badge" id="badge-count">0</span>
+    </button>
+  </header>
+
+  <div class="menu-body">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-title">Categorias</div>
+      <button class="cat-btn ativa" onclick="mudarCat('pratos', this)">
+        <div class="cat-icon-wrap">🍽️</div>
+        <span class="cat-label">Pratos do Dia</span>
+      </button>
+      <button class="cat-btn" onclick="mudarCat('bebidas', this)">
+        <div class="cat-icon-wrap">🥤</div>
+        <span class="cat-label">Bebidas</span>
+      </button>
+      <button class="cat-btn" onclick="mudarCat('calendario', this)">
+        <div class="cat-icon-wrap">📅</div>
+        <span class="cat-label">Cardápio do Mês</span>
+      </button>
+    </aside>
+
+    <!-- Conteúdo -->
+    <main class="conteudo" id="conteudo-area"></main>
+  </div>
+</div>
+
+<!-- ===========================
+     TELA 3 — PAGAMENTO
+========================== -->
+<div class="tela" id="tela-pagamento">
+  <header class="header">
+    <div class="header-logo">
+      <div class="header-logo-img" id="logo-pag"></div>
+      <div class="header-logo-text">
+        <h2>IFSP Pirituba</h2>
+        <p>Restaurante Universitário</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="pag-body" id="pag-body">
+    <button class="btn-voltar-pag" onclick="irPara('tela-menu')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="16" height="16"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Voltar ao cardápio
+    </button>
+
+    <!-- Resumo -->
+    <div class="resumo-card">
+      <h4>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2"/></svg>
+        Resumo do Pedido
+      </h4>
+      <div id="resumo-itens"></div>
+      <div style="border-top: 1px solid var(--cinza-borda); margin-top: 12px; padding-top: 12px;">
+        <div class="resumo-linha"><span>Subtotal</span><span id="pag-subtotal">R$ 0,00</span></div>
+        <div class="resumo-linha total"><span>Total</span><span id="pag-total">R$ 0,00</span></div>
+      </div>
+    </div>
+
+    <!-- Forma de pagamento -->
+    <div class="pag-card">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        Forma de Pagamento
+      </h3>
+      <div class="formas-grid">
+        <button class="forma-btn" onclick="selecionarPagamento('credito', this)">
+          <div class="forma-icon">💳</div>
+          <span class="forma-label">Crédito</span>
+        </button>
+        <button class="forma-btn" onclick="selecionarPagamento('debito', this)">
+          <div class="forma-icon">🏦</div>
+          <span class="forma-label">Débito</span>
+        </button>
+        <button class="forma-btn" onclick="selecionarPagamento('pix', this)">
+          <div class="forma-icon">⚡</div>
+          <span class="forma-label">PIX</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Instrução de pagamento -->
+    <div class="pag-instrucao" id="pag-instrucao">
+      <!-- conteúdo gerado por JS -->
+    </div>
+
+    <!-- Botão confirmar -->
+    <button class="btn-pgto-realizado" id="btn-pgto-realizado" style="display:none" onclick="confirmarPedido()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      Pagamento Realizado
+    </button>
+  </div>
+</div>
+
+<!-- ===========================
+     TELA 4 — CONFIRMAÇÃO
+========================== -->
+<div class="tela" id="tela-confirmacao">
+  <div class="inicial-dots"></div>
+  <div class="inicial-overlay"></div>
+
+  <div class="confirmacao-card">
+    <div class="check-circle">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h2>Pedido Confirmado!</h2>
+    <p class="sub-text">Retire sua nota fiscal no totem e dirija-se ao balcão de atendimento para retirar sua refeição. Obrigado!</p>
+    <div class="numero-pedido-box">
+      <p>Número do Pedido</p>
+      <h3 id="num-pedido">#067</h3>
+    </div>
+    <button class="btn-novo-pedido" onclick="novoPedido()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="20" height="20"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+      Fazer Novo Pedido
+    </button>
+  </div>
+</div>
+
+<!-- Overlay + Painel carrinho -->
+<div class="overlay-bg" id="overlay-bg" onclick="fecharCarrinho()"></div>
+<div class="painel-carrinho" id="painel-carrinho">
+  <div class="painel-header">
+    <h3>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="22" height="22"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      Seu Pedido
+    </h3>
+    <button class="btn-fechar" onclick="fecharCarrinho()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="painel-body" id="painel-body"></div>
+  <div class="painel-footer" id="painel-footer" style="display:none">
+    <div class="resumo-linha"><span>Subtotal</span><span id="carr-subtotal">R$ 0,00</span></div>
+    <div class="resumo-linha total"><span>Total</span><span id="carr-total">R$ 0,00</span></div>
+    <button class="btn-checkout" onclick="irParaPagamento()">Finalizar Pedido →</button>
+  </div>
+</div>
+
+<script>
+// ===================== DADOS =====================
+const pratos = [
+  {
+    id: 'p1', cat: 'prato', tag: 'normal', emoji: '🍛',
+    nome: 'Frango Grelhado com Arroz e Feijão',
+    desc: 'Filé de frango grelhado temperado com ervas, acompanhado de arroz branco, feijão carioca, salada e macarrão',
+    preco: 12,
+    alergenicos: ['Glúten', 'Soja']
+  },
+  {
+    id: 'p2', cat: 'prato', tag: 'vegano', emoji: '🥗',
+    nome: 'Prato Vegano – Grão-de-Bico ao Curry',
+    desc: 'Grão-de-bico ao curry com legumes salteados, arroz integral e salada verde temperada',
+    preco: 12,
+    alergenicos: ['Soja']
+  }
+];
+
+const bebidas = [
+  { id: 'b1', cat: 'bebida', tag: 'bebida', emoji: '🍊', nome: 'Suco de Laranja', desc: 'Suco natural de laranja, 300ml', preco: 3.50, alergenicos: [] },
+  { id: 'b2', cat: 'bebida', tag: 'bebida', emoji: '🍋', nome: 'Suco de Limão', desc: 'Suco natural de limão com hortelã, 300ml', preco: 3.50, alergenicos: [] },
+  { id: 'b3', cat: 'bebida', tag: 'bebida', emoji: '🍹', nome: 'Suco de Maracujá', desc: 'Suco de maracujá natural adoçado, 300ml', preco: 3.50, alergenicos: [] },
+  { id: 'b4', cat: 'bebida', tag: 'bebida', emoji: '🥭', nome: 'Suco de Manga', desc: 'Suco de manga natural, 300ml', preco: 3.50, alergenicos: [] },
+  { id: 'b5', cat: 'bebida', tag: 'bebida', emoji: '🧃', nome: 'Refrigerante Lata', desc: 'Coca-cola ou guaraná – 350ml', preco: 4.00, alergenicos: [] },
+  { id: 'b6', cat: 'bebida', tag: 'bebida', emoji: '💧', nome: 'Água Mineral', desc: 'Garrafa 500ml, com ou sem gás', preco: 2.00, alergenicos: [] },
+];
+
+const calendario = [
+  { data: '02/06 (Seg)', pratos: [{ emoji:'🍗', nome:'Coxa e Sobrecoxa Assada', tipo:'Normal' }, { emoji:'🌿', nome:'Proteína de Soja com Legumes', tipo:'Vegano' }] },
+  { data: '03/06 (Ter)', pratos: [{ emoji:'🥩', nome:'Bife à Milanesa com Purê', tipo:'Normal' }, { emoji:'🫘', nome:'Feijão Tropeiro Vegano', tipo:'Vegano' }] },
+  { data: '04/06 (Qua)', pratos: [{ emoji:'🐟', nome:'Peixe Grelhado com Arroz', tipo:'Normal' }, { emoji:'🥦', nome:'Quiche de Legumes', tipo:'Vegano' }] },
+  { data: '05/06 (Qui)', pratos: [{ emoji:'🍝', nome:'Macarrão à Bolonhesa', tipo:'Normal' }, { emoji:'🌽', nome:'Polenta com Ratatouille', tipo:'Vegano' }] },
+  { data: '06/06 (Sex)', pratos: [{ emoji:'🍛', nome:'Frango ao Molho Madeira', tipo:'Normal' }, { emoji:'🧆', nome:'Falafel com Tabule', tipo:'Vegano' }] },
+  { data: '09/06 (Seg)', pratos: [{ emoji:'🥘', nome:'Carne Assada com Mandioca', tipo:'Normal' }, { emoji:'🫑', nome:'Pimentão Recheado Vegano', tipo:'Vegano' }] },
+  { data: '10/06 (Ter)', pratos: [{ emoji:'🍗', nome:'Frango Xadrez com Arroz', tipo:'Normal' }, { emoji:'🥬', nome:'Tofu Grelhado com Quinoa', tipo:'Vegano' }] },
+  { data: '11/06 (Qua)', pratos: [{ emoji:'🥩', nome:'Costela no Forno com Arroz', tipo:'Normal' }, { emoji:'🌶️', nome:'Curry de Lentilha com Pão', tipo:'Vegano' }] },
+  { data: '12/06 (Qui)', pratos: [{ emoji:'🐠', nome:'Tilápia Assada com Farofa', tipo:'Normal' }, { emoji:'🥕', nome:'Escondidinho de Grão-de-Bico', tipo:'Vegano' }] },
+  { data: '13/06 (Sex)', pratos: [{ emoji:'🍖', nome:'Lombo Suíno com Legumes', tipo:'Normal' }, { emoji:'🍄', nome:'Risoto de Cogumelos Vegano', tipo:'Vegano' }] },
+];
+
+// ===================== ESTADO =====================
+let carrinho = [];
+let numPedido = 60 + Math.floor(Math.random() * 30);
+
+// ===================== NAVEGAÇÃO =====================
+function irPara(id) {
+  document.querySelectorAll('.tela').forEach(t => {
+    t.classList.remove('ativa');
+    t.style.display = 'none';
+  });
+  const t = document.getElementById(id);
+  t.style.display = 'flex';
+  requestAnimationFrame(() => t.classList.add('ativa'));
+  if (id === 'tela-menu') renderCat('pratos');
+  if (id === 'tela-pagamento') renderPagamento();
+  injetarLogos();
+}
+
+function injetarLogos() {
+  ['logo-header','logo-pag'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && !el.querySelector('svg')) {
+      el.innerHTML = document.getElementById('tpl-logo').innerHTML;
+    }
+  });
+}
+
+// ===================== CATEGORIAS =====================
+function mudarCat(cat, btn) {
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('ativa'));
+  btn.classList.add('ativa');
+  renderCat(cat);
+}
+
+function renderCat(cat) {
+  const area = document.getElementById('conteudo-area');
+  if (cat === 'pratos') renderPratos(area);
+  else if (cat === 'bebidas') renderBebidas(area);
+  else renderCalendario(area);
+}
+
+function renderPratos(area) {
+  area.innerHTML = `
+    <div class="conteudo-header">
+      <h3>🍽️ Pratos do Dia</h3>
+      <p></p>
+    </div>
+    <div class="grid-pratos">
+      ${pratos.map(p => cardItem(p)).join('')}
+    </div>`;
+}
+
+function renderBebidas(area) {
+  area.innerHTML = `
+    <div class="conteudo-header">
+      <h3>🥤 Bebidas</h3>
+      <p>Sucos naturais e refrigerantes disponíveis hoje</p>
+    </div>
+    <div class="grid-pratos">
+      ${bebidas.map(b => cardItem(b)).join('')}
+    </div>`;
+}
+
+function renderCalendario(area) {
+  const dias = calendario.map(d => `
+    <div class="cal-dia">
+      <div class="cal-dia-header"><span>📅</span> ${d.data}</div>
+      <div class="cal-dia-pratos">
+        ${d.pratos.map(p => `
+          <div class="cal-prato">
+            <div class="cal-prato-emoji">${p.emoji}</div>
+            <div class="cal-prato-info">
+              <h5>${p.nome}</h5>
+              <p>${p.tipo === 'Vegano' ? '🌿 Opção Vegana' : '🍽️ Prato Normal'}</p>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+
+  area.innerHTML = `
+    <div class="conteudo-header">
+      <h3>📅 Cardápio de Junho 2026</h3>
+      <p>Previsão dos próximos dias</p>
+    </div>
+    <div class="calendario-wrap">
+      ${dias}
+      <div class="cal-aviso">
+        <strong>ℹ️ Informação:</strong> O cardápio é atualizado mensalmente pela equipe do RU.<br>
+        Não é possível visualizar cardápios de meses futuros antecipadamente.
+      </div>
+    </div>`;
+}
+
+function cardItem(item) {
+  const tagLabel = item.tag === 'normal' ? 'Prato Normal' : item.tag === 'vegano' ? '🌿 Vegano' : 'Bebida';
+  const tagClass = item.tag === 'normal' ? 'tag-normal' : item.tag === 'vegano' ? 'tag-vegano' : 'tag-bebida';
+  const precoStr = item.preco === 0 ? 'Incluso no RU' : `R$ ${item.preco.toFixed(2).replace('.',',')}`;
+  const alergs = item.alergenicos.length > 0
+    ? `<div class="card-alerg">${item.alergenicos.map(a=>`<span class="alerg-tag">⚠️ ${a}</span>`).join('')}</div>`
+    : '';
+  return `
+    <div class="card-prato">
+      <div class="card-img">${item.emoji}</div>
+      <div class="card-body">
+        <span class="card-tag ${tagClass}">${tagLabel}</span>
+        <div class="card-nome">${item.nome}</div>
+        <div class="card-desc">${item.desc}</div>
+        ${alergs}
+        <div class="card-footer">
+          <span class="card-preco">${precoStr}</span>
+          <button class="btn-add" onclick="addCarrinho('${item.id}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ===================== CARRINHO =====================
+function addCarrinho(id) {
+  const item = [...pratos, ...bebidas].find(i => i.id === id);
+  if (!item) return;
+  const ex = carrinho.find(c => c.id === id);
+  if (ex) ex.qtd++;
+  else carrinho.push({ ...item, qtd: 1 });
+  atualizarBadge();
+  flashBadge();
+}
+
+function removerCarrinho(id) {
+  carrinho = carrinho.filter(c => c.id !== id);
+  atualizarBadge();
+  renderCarrinho();
+}
+
+function alterarQtd(id, delta) {
+  const item = carrinho.find(c => c.id === id);
+  if (!item) return;
+  item.qtd += delta;
+  if (item.qtd <= 0) carrinho = carrinho.filter(c => c.id !== id);
+  atualizarBadge();
+  renderCarrinho();
+}
+
+function atualizarBadge() {
+  const total = carrinho.reduce((s, c) => s + c.qtd, 0);
+  const badge = document.getElementById('badge-count');
+  badge.textContent = total;
+  badge.style.display = total > 0 ? 'flex' : 'none';
+}
+
+function flashBadge() {
+  const badge = document.getElementById('badge-count');
+  badge.style.transform = 'scale(1.5)';
+  setTimeout(() => badge.style.transform = 'scale(1)', 200);
+}
+
+function calcTotal() {
+  return carrinho.reduce((s, c) => s + (c.preco * c.qtd), 0);
+}
+
+function renderCarrinho() {
+  const body = document.getElementById('painel-body');
+  const footer = document.getElementById('painel-footer');
+  if (carrinho.length === 0) {
+    body.innerHTML = `
+      <div class="carrinho-vazio">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <h4>Seu carrinho está vazio</h4>
+        <p>Adicione pratos e bebidas para continuar</p>
+      </div>`;
+    footer.style.display = 'none';
+    return;
+  }
+
+  body.innerHTML = carrinho.map(c => `
+    <div class="item-carrinho">
+      <div class="item-emoji">${c.emoji}</div>
+      <div class="item-info">
+        <h5>${c.nome}</h5>
+        <p>${c.preco === 0 ? 'Incluso' : `R$ ${c.preco.toFixed(2).replace('.',',')} cada`}</p>
+      </div>
+      <div class="item-ctrl">
+        <button class="ctrl-btn" onclick="alterarQtd('${c.id}',-1)">−</button>
+        <span class="ctrl-qtd">${c.qtd}</span>
+        <button class="ctrl-btn" onclick="alterarQtd('${c.id}',1)">+</button>
+        <button class="btn-remover" onclick="removerCarrinho('${c.id}')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+        </button>
+      </div>
+    </div>`).join('');
+
+  const sub = calcTotal();
+  document.getElementById('carr-subtotal').textContent = `R$ ${sub.toFixed(2).replace('.',',')}`;
+  document.getElementById('carr-total').textContent = `R$ ${sub.toFixed(2).replace('.',',')}`;
+  footer.style.display = 'block';
+}
+
+function abrirCarrinho() {
+  renderCarrinho();
+  document.getElementById('painel-carrinho').classList.add('aberto');
+  document.getElementById('overlay-bg').classList.add('visivel');
+}
+
+function fecharCarrinho() {
+  document.getElementById('painel-carrinho').classList.remove('aberto');
+  document.getElementById('overlay-bg').classList.remove('visivel');
+}
+
+function irParaPagamento() {
+  fecharCarrinho();
+  irPara('tela-pagamento');
+}
+
+// ===================== PAGAMENTO =====================
+let formaPgto = null;
+
+function renderPagamento() {
+  formaPgto = null;
+  document.querySelectorAll('.forma-btn').forEach(b => b.classList.remove('selecionada'));
+  document.getElementById('pag-instrucao').classList.remove('visivel');
+  document.getElementById('btn-pgto-realizado').style.display = 'none';
+
+  const itens = carrinho.map(c => `
+    <div class="resumo-linha">
+      <span>${c.emoji} ${c.nome} ×${c.qtd}</span>
+      <span>${c.preco === 0 ? 'Incluso' : `R$ ${(c.preco*c.qtd).toFixed(2).replace('.',',')}`}</span>
+    </div>`).join('');
+  document.getElementById('resumo-itens').innerHTML = itens;
+
+  const sub = calcTotal();
+  document.getElementById('pag-subtotal').textContent = `R$ ${sub.toFixed(2).replace('.',',')}`;
+  document.getElementById('pag-total').textContent = `R$ ${sub.toFixed(2).replace('.',',')}`;
+}
+
+function selecionarPagamento(forma, btn) {
+  formaPgto = forma;
+  document.querySelectorAll('.forma-btn').forEach(b => b.classList.remove('selecionada'));
+  btn.classList.add('selecionada');
+
+  const instrucao = document.getElementById('pag-instrucao');
+  instrucao.classList.add('visivel');
+  document.getElementById('btn-pgto-realizado').style.display = 'flex';
+
+  if (forma === 'pix') {
+    instrucao.innerHTML = `
+      <div class="qrcode-wrap">
+        <svg class="qrcode-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <!-- QR simulado -->
+          <rect width="100" height="100" fill="white"/>
+          <!-- Posicionadores -->
+          <rect x="5" y="5" width="30" height="30" rx="3" fill="none" stroke="#1a1a1a" stroke-width="4"/>
+          <rect x="12" y="12" width="16" height="16" rx="1" fill="#1a1a1a"/>
+          <rect x="65" y="5" width="30" height="30" rx="3" fill="none" stroke="#1a1a1a" stroke-width="4"/>
+          <rect x="72" y="12" width="16" height="16" rx="1" fill="#1a1a1a"/>
+          <rect x="5" y="65" width="30" height="30" rx="3" fill="none" stroke="#1a1a1a" stroke-width="4"/>
+          <rect x="12" y="72" width="16" height="16" rx="1" fill="#1a1a1a"/>
+          <!-- Dados simulados -->
+          <rect x="42" y="5" width="5" height="5" fill="#1a1a1a"/>
+          <rect x="50" y="5" width="5" height="5" fill="#1a1a1a"/>
+          <rect x="58" y="5" width="5" height="5" fill="#1a1a1a"/>
+          <rect x="42" y="12" width="5" height="5" fill="#1a1a1a"/>
+          <rect x="50" y="20" width="5" height="5" fill="#1a1a1a"/>
+          <rect x="58" y="12" width="5" height="5" fill="#1a1a1a"/>
+          <rect x="42" y="28" width="5" height="5" fill="#1a1a1a"/>
+          <rect x="5" y="42" width="5" height="5" fill="#1a1a1a"/>
+          <rect x="12" y="42" width="5" height="5" fill="#1a1a1a"/>
+          <rect x="20" y="42" width="5" height="5" fill="#1a1a1a"/>
+          <rect x="28" y="50" width="5" height="5" fill="#1a1a1a"/>
+          <rect x="5" y="58" width="5" height="5" fill="#1a1a1a"/>
+          <rect x="20" y="58" width="5" height="5" fill="#1a1a1a"/>
+          <rect x="42" y="42" width="5" height="5" fill="#1a1a1a"/>
+          <rect x="50" y="42" width="5" height="5" fill="#1a1a1a"/>
+          <rect x="58" y="42" width="5" height="5" fill="#1a1a1a"/>
+          <rect x="65" y="42" width="5" height="5" fill="#1a1a1a"/>
+          <rect x="42" y="50" width="5" height="5" fill="#1a1a1a"/>
+          <rect x="58" y="50" width="5" height="5" fill="#1a1a1a"/>
+          <rect x="65" y="58" width="5" height="5" fill="#1a1a1a"/>
+          <rect x="42" y="65" width="5" height="5" fill="#1a1a1a"/>
+          <rect x="50" y="65" width="5" height="5" fill="#1a1a1a"/>
+          <rect x="42" y="80" width="5" height="5" fill="#1a1a1a"/>
+          <rect x="50" y="80" width="5" height="5" fill="#1a1a1a"/>
+          <rect x="65" y="65" width="5" height="5" fill="#1a1a1a"/>
+          <rect x="73" y="73" width="5" height="5" fill="#1a1a1a"/>
+          <rect x="85" y="65" width="5" height="5" fill="#1a1a1a"/>
+          <rect x="85" y="80" width="5" height="5" fill="#1a1a1a"/>
+          <rect x="73" y="85" width="5" height="5" fill="#1a1a1a"/>
+        </svg>
+      </div>
+      <div class="instrucao-texto">Escaneie o QR Code com seu aplicativo de pagamento</div>
+      <div class="instrucao-sub">Após confirmar o pagamento no app, toque em "Pagamento Realizado" abaixo</div>`;
+  } else {
+    instrucao.innerHTML = `
+      <div style="font-size:3.5rem">💳</div>
+      <div class="instrucao-texto">Siga as instruções na maquininha</div>
+      <div class="instrucao-sub">Insira ou aproxime seu cartão de ${forma === 'credito' ? 'crédito' : 'débito'} na maquininha ao lado.<br>Aguarde a confirmação do pagamento.</div>`;
+  }
+}
+
+function confirmarPedido() {
+  if (!formaPgto) return;
+  numPedido++;
+  document.getElementById('num-pedido').textContent = `#${String(numPedido).padStart(3,'0')}`;
+  irPara('tela-confirmacao');
+}
+
+function novoPedido() {
+  carrinho = [];
+  atualizarBadge();
+  formaPgto = null;
+  irPara('tela-menu');
+}
+
+// ===================== INIT =====================
+window.onload = () => {
+  // Injeta logo na tela inicial
+  document.getElementById('logo-inicial').innerHTML = document.getElementById('tpl-logo').innerHTML;
+  // Ativa tela inicial com animação
+  const ti = document.getElementById('tela-inicial');
+  ti.style.display = 'flex';
+  requestAnimationFrame(() => ti.classList.add('ativa'));
+};
+</script>
+</body>
+</html>
